@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>学霸俄罗斯方块：期末不挂科版</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="一款融合校园梗和俄罗斯方块的趣味游戏，通过整理知识点方块来挑战高分！" />
+    <meta name="theme-color" content="#22d3ee" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="学霸方块" />
+    <meta name="msapplication-TileColor" content="#22d3ee" />
+    <meta name="msapplication-TileImage" content="./icons/icon-144x144.png" />
+    
+    <!-- PWA Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="./icons/icon-16x16.png" />
+    <link rel="apple-touch-icon" href="./icons/icon-152x152.png" />
+    <link rel="manifest" href="./manifest.json" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <div class="title">
+          <span class="emoji">🎓</span>
+          学霸俄罗斯方块：期末不挂科版
+          <span class="emoji">📚</span>
+        </div>
+        <div class="meta">
+          <div class="meta-item"><span>得分</span><b id="score">0</b></div>
+          <div class="meta-item"><span>行数</span><b id="lines">0</b></div>
+          <div class="meta-item"><span>等级</span><b id="level">1</b></div>
+        </div>
+        <div class="bars">
+          <div class="bar-group">
+            <div class="bar-label">精力值</div>
+            <div class="bar" aria-label="energy">
+              <div id="energy-bar" class="bar-fill"></div>
+            </div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-label">考试倒计时</div>
+            <div class="bar" aria-label="timer">
+              <div id="timer-bar" class="bar-fill timer"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="left">
+          <canvas id="board" width="360" height="720" aria-label="board" tabindex="0"></canvas>
+          <div id="overlay" class="overlay hidden"></div>
+          <div id="pause-mask" class="pause-mask hidden">暂停中</div>
+        </section>
+
+        <section class="right">
+          <div class="next-box">
+            <div class="subtitle">下一个</div>
+            <canvas id="next" width="144" height="144"></canvas>
+          </div>
+
+          <div class="bag">
+            <div class="subtitle">道具包</div>
+            <div class="items">
+              <button id="btn-cola" class="btn item" title="肥宅快乐水：+30精力，10秒内下落速度x2（快捷键 1）">
+                🥤 肥宅快乐水
+              </button>
+              <button id="btn-notes" class="btn item" title="学霸笔记：直接清除最满的一行（快捷键 2）">
+                📒 学霸笔记
+              </button>
+              <button id="btn-cheat" class="btn item" title="偷看答案：冻结一切5秒（快捷键 3）">
+                🥷 偷看答案
+              </button>
+            </div>
+          </div>
+
+          <div class="controls">
+            <div class="subtitle">操作</div>
+            <div class="help">
+              键盘：← → 移动，↑ 旋转，↓ 加速，空格 硬降，P 暂停，1/2/3 道具
+            </div>
+            <div class="touch">
+              <button id="btn-left" class="btn round">←</button>
+              <button id="btn-rotate" class="btn round">⤿</button>
+              <button id="btn-right" class="btn round">→</button>
+              <button id="btn-drop" class="btn long">硬降</button>
+            </div>
+            <div class="actions">
+              <button id="btn-start" class="btn primary">开始/重开</button>
+              <button id="btn-pause" class="btn">暂停/继续</button>
+            </div>
+          </div>
+
+          <div class="events">
+            <div class="subtitle">突发事件</div>
+            <ul id="event-log" class="event-log"></ul>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="marquee">
+          <div class="marquee-inner" aria-hidden="true">
+            龙岗实验叶一帆 · 龙岗实验叶一帆 · 龙岗实验叶一帆 · 龙岗实验叶一帆 · 龙岗实验叶一帆 · 龙岗实验叶一帆 · 龙岗实验叶一帆
+          </div>
+        </div>
+      </footer>
+
+      <div id="dialog" class="dialog hidden" role="dialog" aria-modal="true">
+        <div class="dialog-body">
+          <div id="dialog-text" class="dialog-text"></div>
+          <button id="dialog-ok" class="btn primary">好的</button>
+        </div>
+      </div>
+
+      <div id="toasts" class="toasts"></div>
+      
+      <!-- PWA Install Prompt -->
+      <div id="install-prompt" class="install-prompt hidden">
+        <div class="install-content">
+          <div class="install-text">
+            <span class="emoji">📱</span>
+            安装学霸方块到主屏幕，获得更好的游戏体验！
+          </div>
+          <div class="install-buttons">
+            <button id="install-btn" class="btn primary">安装</button>
+            <button id="dismiss-btn" class="btn">稍后</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="./game.js"></script>
+    <script src="./pwa.js"></script>
+  </body>
+  </html>
+
+

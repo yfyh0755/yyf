@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成PWA图标</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px;
+            display: inline-block;
+        }
+        .download-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .download-btn:hover {
+            background: #0056b3;
+        }
+        .instructions {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 学霸方块 PWA 图标生成器</h1>
+        
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ol>
+                <li>点击下方按钮生成各种尺寸的图标</li>
+                <li>右键点击图标选择"图片另存为"</li>
+                <li>将图标保存到 <code>icons/</code> 文件夹中</li>
+                <li>确保文件名与 manifest.json 中的路径一致</li>
+            </ol>
+        </div>
+
+        <h3>生成图标：</h3>
+        <button onclick="generateAllIcons()" class="download-btn">生成所有图标</button>
+        <button onclick="downloadAllIcons()" class="download-btn">下载所有图标</button>
+        
+        <div id="icon-container"></div>
+    </div>
+
+    <script>
+        function generateIcon(size, text = '🎓') {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // 背景渐变
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#22d3ee');
+            gradient.addColorStop(1, '#a78bfa');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // 添加一些装饰性几何图形
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            ctx.beginPath();
+            ctx.arc(size * 0.8, size * 0.2, size * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(size * 0.2, size * 0.8, size * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 主图标（emoji）
+            ctx.font = `bold ${size * 0.5}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = 'white';
+            ctx.fillText(text, size / 2, size / 2);
+            
+            // 添加边框
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = size * 0.02;
+            ctx.strokeRect(size * 0.05, size * 0.05, size * 0.9, size * 0.9);
+            
+            return canvas;
+        }
+        
+        function generateAllIcons() {
+            const container = document.getElementById('icon-container');
+            container.innerHTML = '';
+            
+            const sizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+            
+            sizes.forEach(size => {
+                const canvas = generateIcon(size);
+                const div = document.createElement('div');
+                div.style.textAlign = 'center';
+                div.style.margin = '20px';
+                
+                const label = document.createElement('div');
+                label.textContent = `${size}x${size}`;
+                label.style.marginBottom = '10px';
+                label.style.fontWeight = 'bold';
+                
+                const downloadBtn = document.createElement('button');
+                downloadBtn.textContent = '下载';
+                downloadBtn.className = 'download-btn';
+                downloadBtn.onclick = () => downloadCanvas(canvas, `icon-${size}x${size}.png`);
+                
+                div.appendChild(label);
+                div.appendChild(canvas);
+                div.appendChild(downloadBtn);
+                container.appendChild(div);
+            });
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        function downloadAllIcons() {
+            const sizes = [16, 32, 72, 96, 128, 144, 152, 192, 384, 512];
+            
+            sizes.forEach(size => {
+                setTimeout(() => {
+                    const canvas = generateIcon(size);
+                    downloadCanvas(canvas, `icon-${size}x${size}.png`);
+                }, size * 10); // 延迟下载避免浏览器阻止
+            });
+        }
+        
+        // 页面加载时自动生成图标
+        window.onload = generateAllIcons;
+    </script>
+</body>
+</html>
