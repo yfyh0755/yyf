@@ -41,9 +41,9 @@
   const toasts = document.getElementById('toasts');
 
   // Board config
-  const COLS = 10; // standard tetris width
-  const ROWS = 20; // standard tetris height
-  const CELL = canvas.width / COLS; // 36px
+  const COLS = 16; // 适应宽屏的列数
+  const ROWS = 15; // 适应宽屏的行数
+  const CELL = canvas.width / COLS; // 50px
 
   // Game state
   const initialEnergy = 100;
